@@ -90,6 +90,7 @@ def getPointList(words, start):
 
 class Canvas:
     def __init__(self, height, width, outputDir):
+        self.tempGraphic = None
         self.height = height
         self.width = width
         self.outputDir = outputDir
@@ -102,6 +103,10 @@ class Canvas:
         self.bitmap = np.zeros((self.height, self.width, 3), np.uint8)
         for gid in sorted(self.graphics.keys()):
             self.drawGraphic(self.graphics[gid])
+        if self.tempGraphic is not None:
+            # temporary graphic will only be drawn once
+            self.drawGraphic(self.tempGraphic)
+            self.tempGraphic = None
 
     def drawGraphic(self, graphic):
         """ draw a single graphic on bitmap """
@@ -110,6 +115,12 @@ class Canvas:
             if 0 <= x < self.width and 0 <= y < self.height:
                 # print(x, y)
                 self.bitmap[y][x] = color
+
+    def addGraphic(self, graphic, gid):
+        if gid == -1:
+            self.tempGraphic = graphic
+        else:
+            self.graphics[gid] = graphic
 
     def resetCanvas(self, height, width):
         self.height = height
@@ -125,22 +136,22 @@ class Canvas:
 
     def addLine(self, algorithm, gid, pointList):
         line = alg.Line(algorithm, self.penColor, pointList[0], pointList[1])
-        self.graphics[gid] = line
+        self.addGraphic(line, gid)
         self.update()
 
     def addPolygon(self, algorithm, gid, pointList):
         polygon = alg.Polygon(algorithm, self.penColor, pointList)
-        self.graphics[gid] = polygon
+        self.addGraphic(polygon, gid)
         self.update()
 
     def addEllipse(self, algorithm, gid, pointList):
         ellipse = alg.Ellipse(algorithm, self.penColor, pointList[0], pointList[1])
-        self.graphics[gid] = ellipse
+        self.addGraphic(ellipse, gid)
         self.update()
 
     def addCurve(self, algorithm, gid, pointList):
         curve = alg.Curve(algorithm, self.penColor, pointList)
-        self.graphics[gid] = curve
+        self.addGraphic(curve, gid)
         self.update()
 
     def translate(self, gid, displacement):
