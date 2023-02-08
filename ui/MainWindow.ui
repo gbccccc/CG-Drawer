@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTableWidget" name="tableWidget">
+    <property name="geometry">
+     <rect>
+      <x>530</x>
+      <y>0</y>
+      <width>271</width>
+      <height>541</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>541</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>500</width>
+      <height>16777215</height>
+     </size>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="horizontalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOff</enum>
+    </property>
+    <property name="editTriggers">
+     <set>QAbstractItemView::NoEditTriggers</set>
+    </property>
+    <property name="selectionMode">
+     <enum>QAbstractItemView::SingleSelection</enum>
+    </property>
+    <property name="selectionBehavior">
+     <enum>QAbstractItemView::SelectRows</enum>
+    </property>
+    <attribute name="horizontalHeaderDefaultSectionSize">
+     <number>90</number>
+    </attribute>
+    <attribute name="verticalHeaderVisible">
+     <bool>false</bool>
+    </attribute>
+    <column>
+     <property name="text">
+      <string>ID</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Type</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Algorithm</string>
+     </property>
+    </column>
+   </widget>
+   <widget class="CanvasWidget" name="canvasWidget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>-1</x>
+      <y>-1</y>
+      <width>531</width>
+      <height>541</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuGraphic">
+    <property name="title">
+     <string>Graphic</string>
+    </property>
+    <widget class="QMenu" name="menuLine">
+     <property name="title">
+      <string>Line</string>
+     </property>
+     <addaction name="actionDDA"/>
+     <addaction name="actionBresenham"/>
+    </widget>
+    <widget class="QMenu" name="menuPolygon">
+     <property name="title">
+      <string>Polygon</string>
+     </property>
+     <addaction name="actionPolyDDA"/>
+     <addaction name="actionPolyBresenham"/>
+    </widget>
+    <widget class="QMenu" name="menuEllipse">
+     <property name="title">
+      <string>Ellipse</string>
+     </property>
+     <addaction name="actionMidpoint"/>
+    </widget>
+    <widget class="QMenu" name="menuCurve">
+     <property name="title">
+      <string>Curve</string>
+     </property>
+     <addaction name="actionBezier"/>
+     <addaction name="actionBSpline"/>
+    </widget>
+    <addaction name="menuLine"/>
+    <addaction name="menuPolygon"/>
+    <addaction name="menuEllipse"/>
+    <addaction name="menuCurve"/>
+   </widget>
+   <widget class="QMenu" name="menuTransform">
+    <property name="title">
+     <string>Transform</string>
+    </property>
+    <widget class="QMenu" name="menuClip">
+     <property name="title">
+      <string>Clip</string>
+     </property>
+     <addaction name="actionLiang_Barsky"/>
+     <addaction name="actionCohen_Sutherland"/>
+    </widget>
+    <addaction name="actionTranslate"/>
+    <addaction name="actionRotate"/>
+    <addaction name="actionScale"/>
+    <addaction name="menuClip"/>
+   </widget>
+   <widget class="QMenu" name="menuDrawer">
+    <property name="title">
+     <string>Drawer</string>
+    </property>
+    <addaction name="actionClear"/>
+   </widget>
+   <addaction name="menuDrawer"/>
+   <addaction name="menuGraphic"/>
+   <addaction name="menuTransform"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionDDA">
+   <property name="text">
+    <string>DDA</string>
+   </property>
+  </action>
+  <action name="actionBresenham">
+   <property name="text">
+    <string>Bresenham</string>
+   </property>
+  </action>
+  <action name="actionPolyDDA">
+   <property name="text">
+    <string>DDA</string>
+   </property>
+  </action>
+  <action name="actionPolyBresenham">
+   <property name="text">
+    <string>Bresenham</string>
+   </property>
+  </action>
+  <action name="actionMidpoint">
+   <property name="text">
+    <string>Midpoint</string>
+   </property>
+  </action>
+  <action name="actionBezier">
+   <property name="text">
+    <string>Bezier</string>
+   </property>
+  </action>
+  <action name="actionBSpline">
+   <property name="text">
+    <string>BSpline</string>
+   </property>
+  </action>
+  <action name="actionTranslate">
+   <property name="text">
+    <string>Translate</string>
+   </property>
+  </action>
+  <action name="actionRotate">
+   <property name="text">
+    <string>Rotate</string>
+   </property>
+  </action>
+  <action name="actionScale">
+   <property name="text">
+    <string>Scale</string>
+   </property>
+  </action>
+  <action name="actionLiang_Barsky">
+   <property name="text">
+    <string>Cohen-Sutherland</string>
+   </property>
+  </action>
+  <action name="actionCohen_Sutherland">
+   <property name="text">
+    <string>Liang-Barsky</string>
+   </property>
+  </action>
+  <action name="actionClear">
+   <property name="text">
+    <string>Clear</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CanvasWidget</class>
+   <extends>QWidget</extends>
+   <header>CanvasWidget</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

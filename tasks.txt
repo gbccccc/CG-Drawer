@@ -1,0 +1,17 @@
+resetCanvas 960 540
+setColor 210 80 100
+drawLine 0 100 100 300 240 Bresenham
+drawLine 1 100 100 300 240 Bresenham
+drawLine 2 100 100 300 240 Bresenham
+clip 0 150 100 200 300 Cohen-Sutherland
+clip 1 150 100 200 300 Liang-Barsky
+translate 1 50 0
+translate 2 100 0
+drawLine 3 400 200 250 240 Bresenham
+drawLine 4 400 200 250 240 Bresenham
+drawLine 5 400 200 250 240 Bresenham
+clip 3 270 180 350 300 Cohen-Sutherland
+clip 4 270 180 350 300 Liang-Barsky
+translate 3 50 0
+translate 4 100 0
+saveCanvas test
