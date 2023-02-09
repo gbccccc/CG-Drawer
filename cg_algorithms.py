@@ -126,6 +126,10 @@ class Line(MetaGraphic):
     def drawByDDA(self):
         result = []
         points = self.points
+        if points[0] == points[1]:
+            result.append(points[0])
+            return result
+
         # swap x and y if needed to ensure to be sampled by x
         reverseFlag = math.fabs(self.points[0][1] - self.points[1][1]) - math.fabs(
             self.points[0][0] - self.points[1][0]) > 0

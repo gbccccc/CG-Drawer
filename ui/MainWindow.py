@@ -9,7 +9,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from cg_gui import CanvasWidget
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -90,6 +90,8 @@ class Ui_MainWindow(object):
         self.actionCohen_Sutherland.setObjectName("actionCohen_Sutherland")
         self.actionClear = QtWidgets.QAction(MainWindow)
         self.actionClear.setObjectName("actionClear")
+        self.actionColor = QtWidgets.QAction(MainWindow)
+        self.actionColor.setObjectName("actionColor")
         self.menuLine.addAction(self.actionDDA)
         self.menuLine.addAction(self.actionBresenham)
         self.menuPolygon.addAction(self.actionPolyDDA)
@@ -108,6 +110,7 @@ class Ui_MainWindow(object):
         self.menuTransform.addAction(self.actionScale)
         self.menuTransform.addAction(self.menuClip.menuAction())
         self.menuDrawer.addAction(self.actionClear)
+        self.menuDrawer.addAction(self.actionColor)
         self.menubar.addAction(self.menuDrawer.menuAction())
         self.menubar.addAction(self.menuGraphic.menuAction())
         self.menubar.addAction(self.menuTransform.menuAction())
@@ -145,3 +148,5 @@ class Ui_MainWindow(object):
         self.actionLiang_Barsky.setText(_translate("MainWindow", "Cohen-Sutherland"))
         self.actionCohen_Sutherland.setText(_translate("MainWindow", "Liang-Barsky"))
         self.actionClear.setText(_translate("MainWindow", "Clear"))
+        self.actionColor.setText(_translate("MainWindow", "Color"))
+from cg_gui import CanvasWidget

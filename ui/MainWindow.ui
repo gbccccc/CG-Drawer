@@ -149,6 +149,7 @@
      <string>Drawer</string>
     </property>
     <addaction name="actionClear"/>
+    <addaction name="actionColor"/>
    </widget>
    <addaction name="menuDrawer"/>
    <addaction name="menuGraphic"/>
@@ -220,12 +221,17 @@
     <string>Clear</string>
    </property>
   </action>
+  <action name="actionColor">
+   <property name="text">
+    <string>Color</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
    <class>CanvasWidget</class>
    <extends>QWidget</extends>
-   <header>CanvasWidget</header>
+   <header>cg_gui</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

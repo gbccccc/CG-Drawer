@@ -131,10 +131,15 @@ class Canvas:
     def saveCanvas(self, name: string):
         Image.fromarray(self.bitmap).save(os.path.join(self.outputDir, name + ".bmp"), "BMP")
 
+    def getImage(self):
+        return Image.fromarray(self.bitmap)
+
     def setColor(self, color):
         self.penColor = color
 
     def addLine(self, algorithm, gid, pointList):
+        if len(pointList) < 2:
+            return
         line = alg.Line(algorithm, self.penColor, pointList[0], pointList[1])
         self.addGraphic(line, gid)
         self.update()
@@ -145,11 +150,15 @@ class Canvas:
         self.update()
 
     def addEllipse(self, algorithm, gid, pointList):
+        if len(pointList) < 2:
+            return
         ellipse = alg.Ellipse(algorithm, self.penColor, pointList[0], pointList[1])
         self.addGraphic(ellipse, gid)
         self.update()
 
     def addCurve(self, algorithm, gid, pointList):
+        if len(pointList) < 2:
+            return
         curve = alg.Curve(algorithm, self.penColor, pointList)
         self.addGraphic(curve, gid)
         self.update()
