@@ -80,7 +80,6 @@ class CanvasWidget(QWidget):
             else:
                 # notify waiting thread
                 self.waitPointsThread.notify()
-                ...
         elif e.button() == QtCore.Qt.MouseButton.RightButton:
             self.endGettingPoints()
 
@@ -96,6 +95,10 @@ class CanvasWidget(QWidget):
         self.currentPoint = (e.x(), e.y())
         # notify waiting thread
         self.waitPointsThread.notify()
+
+    def notifyWaitPointListThread(self):
+        while not self.waitPointsThread.isAlive():
+            self.waitPointsThread.notify()
 
     def drawGraphic(self, pointsLimit, graphicType, drawFunction, algorithm):
         self.pointsLimit = pointsLimit
@@ -115,37 +118,37 @@ class CanvasWidget(QWidget):
             self.condition = threading.Condition()
 
         def wait(self):
-            with self.condition:
-                self.condition.wait()
+            self.condition.wait()
 
         def notify(self):
             with self.condition:
                 self.condition.notify()
 
         def run(self):
-            while True:
-                if self.canvasWidget.isCancelling:
-                    self.canvasWidget.isGetting = False
-                    self.canvasWidget.waitPointListThread = None
-                    break
-                if self.canvasWidget.isGetting:
-                    tempPointList = self.canvasWidget.pointList.copy()
-                    tempPointList.append(self.canvasWidget.currentPoint)
-                    self.drawFunction(self.algorithm, -1, tempPointList)
-                    self.canvasWidget.update()
-                    self.wait()
-                else:
-                    graphicCount = self.canvasWidget.tableWidget.rowCount()
-                    self.drawFunction(self.algorithm, graphicCount,
-                                      self.canvasWidget.pointList)
-                    self.canvasWidget.tableWidget.insertRow(graphicCount)
-                    self.canvasWidget.tableWidget.setItem(graphicCount, 0, QTableWidgetItem(str(graphicCount)))
-                    self.canvasWidget.tableWidget.setItem(graphicCount, 1, QTableWidgetItem(self.graphicType))
-                    self.canvasWidget.tableWidget.setItem(graphicCount, 2, QTableWidgetItem(self.algorithm))
-                    self.canvasWidget.update()
-                    self.canvasWidget.isGetting = False
-                    self.canvasWidget.waitPointListThread = None
-                    break
+            with self.condition:
+                while True:
+                    if self.canvasWidget.isCancelling:
+                        self.canvasWidget.isGetting = False
+                        self.canvasWidget.waitPointListThread = None
+                        break
+                    if self.canvasWidget.isGetting:
+                        tempPointList = self.canvasWidget.pointList.copy()
+                        tempPointList.append(self.canvasWidget.currentPoint)
+                        self.drawFunction(self.algorithm, -1, tempPointList)
+                        self.canvasWidget.update()
+                        self.wait()
+                    else:
+                        graphicCount = self.canvasWidget.tableWidget.rowCount()
+                        self.drawFunction(self.algorithm, graphicCount,
+                                          self.canvasWidget.pointList)
+                        self.canvasWidget.tableWidget.insertRow(graphicCount)
+                        self.canvasWidget.tableWidget.setItem(graphicCount, 0, QTableWidgetItem(str(graphicCount)))
+                        self.canvasWidget.tableWidget.setItem(graphicCount, 1, QTableWidgetItem(self.graphicType))
+                        self.canvasWidget.tableWidget.setItem(graphicCount, 2, QTableWidgetItem(self.algorithm))
+                        self.canvasWidget.update()
+                        self.canvasWidget.isGetting = False
+                        self.canvasWidget.waitPointListThread = None
+                        break
 
     if __name__ == '__main__':
         app = QApplication(sys.argv)
