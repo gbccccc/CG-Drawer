@@ -5,7 +5,7 @@ from PIL import ImageQt
 from PyQt5 import QtCore
 from PyQt5.QtCore import QPoint
 from PyQt5.QtGui import QPainter, QImage
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QTableWidgetItem
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QTableWidgetItem, QColorDialog
 from pyqt5_plugins.examplebutton import QtWidgets
 from pyqt5_plugins.examplebuttonplugin import QtGui
 
@@ -21,6 +21,9 @@ class MainWindow(QMainWindow):
         self.ui.tableWidget.horizontalHeader().setFixedHeight(40)
         self.ui.canvasWidget.prepareCanvas()
 
+        # connect slots and signals
+        self.ui.actionClear.triggered.connect(self.ui.canvasWidget.resetCanvas)
+        self.ui.actionColor.triggered.connect(self.ui.canvasWidget.selectColor)
         self.ui.actionDDA.triggered.connect(
             lambda: self.ui.canvasWidget.drawGraphic(2, "Line", self.ui.canvasWidget.canvas.addLine, "DDA")
         )
@@ -36,13 +39,12 @@ class MainWindow(QMainWindow):
         self.ui.actionMidpoint.triggered.connect(
             lambda: self.ui.canvasWidget.drawGraphic(2, "Ellipse", self.ui.canvasWidget.canvas.addEllipse, "Midpoint")
         )
-        self.ui.actionMidpoint.triggered.connect(
+        self.ui.actionBezier.triggered.connect(
             lambda: self.ui.canvasWidget.drawGraphic(-1, "Curve", self.ui.canvasWidget.canvas.addCurve, "Bezier")
         )
-        self.ui.actionMidpoint.triggered.connect(
+        self.ui.actionBSpline.triggered.connect(
             lambda: self.ui.canvasWidget.drawGraphic(-1, "Curve", self.ui.canvasWidget.canvas.addCurve, "B-spline")
         )
-        self.ui.actionClear.triggered.connect(self.ui.canvasWidget.resetCanvas)
 
 
 class CanvasWidget(QWidget):
@@ -62,12 +64,16 @@ class CanvasWidget(QWidget):
 
     def prepareCanvas(self):
         self.canvas = cli.Canvas(self.width(), self.height(), "./")
-        self.canvas.setColor((105, 200, 200))
+        self.canvas.setColor((255, 255, 255))
 
     def resetCanvas(self):
         self.canvas.resetCanvas(self.width(), self.height())
         self.tableWidget.setRowCount(0)
         self.update()
+
+    def selectColor(self):
+        color = QColorDialog.getColor()
+        self.canvas.setColor((color.red(), color.green(), color.blue()))
 
     def paintEvent(self, a0: QtGui.QPaintEvent):
         if self.canvas is None:
