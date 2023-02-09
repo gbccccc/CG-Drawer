@@ -348,6 +348,12 @@ class Polygon(MetaGraphic):
         return result
 
 
+class Rectangle(Polygon):
+    def __init__(self, algorith, color, pointA, pointB):
+        super().__init__(algorith, color,
+                         [pointA, (pointA[0], pointB[1]), pointB, (pointB[0], pointA[1])])
+
+
 class Ellipse(MetaGraphic):
     def __init__(self, algorithm: string, color, pointA, pointB):
         super().__init__(algorithm, color, [pointA, pointB])

@@ -41,6 +41,12 @@ class CommandParser:
             pointList, end = getPointList(words, 2)
             algorithm = words[end]
             self.canvas.addPolygon(algorithm, gid, pointList)
+        elif commandType == "drawRectangle":
+            gid = int(words[1])
+            pointA = (int(words[2]), int(words[3]))
+            pointB = (int(words[4]), int(words[5]))
+            algorithm = words[6]
+            self.canvas.addRectangle(algorithm, gid, [pointA, pointB])
         elif commandType == "drawEllipse":
             gid = int(words[1])
             pointA = (int(words[2]), int(words[3]))
@@ -129,9 +135,11 @@ class Canvas:
         self.graphics = {}
 
     def saveCanvas(self, name: string):
+        self.update()
         Image.fromarray(self.bitmap).save(os.path.join(self.outputDir, name + ".bmp"), "BMP")
 
     def getImage(self):
+        self.update()
         return Image.fromarray(self.bitmap)
 
     def setColor(self, color):
@@ -139,45 +147,48 @@ class Canvas:
 
     def addLine(self, algorithm, gid, pointList):
         if len(pointList) < 2:
-            return
+            return False
         line = alg.Line(algorithm, self.penColor, pointList[0], pointList[1])
         self.addGraphic(line, gid)
-        self.update()
+        return True
 
     def addPolygon(self, algorithm, gid, pointList):
         polygon = alg.Polygon(algorithm, self.penColor, pointList)
         self.addGraphic(polygon, gid)
-        self.update()
+        return True
+
+    def addRectangle(self, algorithm, gid, pointList):
+        if len(pointList) < 2:
+            return False
+        rectangle = alg.Rectangle(algorithm, self.penColor, pointList[0], pointList[1])
+        self.addGraphic(rectangle, gid)
+        return True
 
     def addEllipse(self, algorithm, gid, pointList):
         if len(pointList) < 2:
-            return
+            return False
         ellipse = alg.Ellipse(algorithm, self.penColor, pointList[0], pointList[1])
         self.addGraphic(ellipse, gid)
-        self.update()
+        return True
 
     def addCurve(self, algorithm, gid, pointList):
         if len(pointList) < 2:
-            return
+            return False
         curve = alg.Curve(algorithm, self.penColor, pointList)
         self.addGraphic(curve, gid)
-        self.update()
+        return True
 
     def translate(self, gid, displacement):
         self.graphics[gid].translate(displacement)
-        self.update()
 
     def rotate(self, gid, center, angle):
         self.graphics[gid].rotate(center, angle)
-        self.update()
 
     def scale(self, gid, center, times):
         self.graphics[gid].scale(center, times)
-        self.update()
 
     def clip(self, algorithm, gid, pointList):
         self.graphics[gid].clip(algorithm, pointList[0], pointList[1])
-        self.update()
 
 
 if __name__ == '__main__':

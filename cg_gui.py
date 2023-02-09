@@ -1,11 +1,12 @@
 import sys
 import threading
+import traceback
 
 from PIL import ImageQt
 from PyQt5 import QtCore
 from PyQt5.QtCore import QPoint
 from PyQt5.QtGui import QPainter, QImage
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QTableWidgetItem, QColorDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QTableWidgetItem, QColorDialog, QInputDialog
 from pyqt5_plugins.examplebutton import QtWidgets
 from pyqt5_plugins.examplebuttonplugin import QtGui
 
@@ -45,6 +46,15 @@ class MainWindow(QMainWindow):
         self.ui.actionBSpline.triggered.connect(
             lambda: self.ui.canvasWidget.drawGraphic(-1, "Curve", self.ui.canvasWidget.canvas.addCurve, "B-spline")
         )
+        self.ui.actionTranslate.triggered.connect(self.ui.canvasWidget.translate)
+        self.ui.actionRotate.triggered.connect(self.ui.canvasWidget.rotate)
+        self.ui.actionScale.triggered.connect(self.ui.canvasWidget.scale)
+        self.ui.actionCohen_Sutherland.triggered.connect(
+            lambda: self.ui.canvasWidget.clip("Cohen-Sutherland")
+        )
+        self.ui.actionLiang_Barsky.triggered.connect(
+            lambda: self.ui.canvasWidget.clip("Liang-Barsky")
+        )
 
 
 class CanvasWidget(QWidget):
@@ -55,7 +65,7 @@ class CanvasWidget(QWidget):
         self.canvas = None
         self.pointList = []
         self.currentPoint = (0, 0)
-        self.pointsLimit = -1
+        self.pointsNeeded = -1
 
         self.tableWidget = self.parent().parent().ui.tableWidget
 
@@ -75,6 +85,52 @@ class CanvasWidget(QWidget):
         color = QColorDialog.getColor()
         self.canvas.setColor((color.red(), color.green(), color.blue()))
 
+    def translate(self):
+        gid = self.tableWidget.currentRow()
+        if gid != -1:
+            dx, success = QInputDialog.getInt(self, "Translate", "dx:")
+            if not success:
+                return
+            dy, success = QInputDialog.getInt(self, "Translate", "dy:")
+            if not success:
+                return
+            self.canvas.translate(gid, (dx, dy))
+
+    def rotate(self):
+        gid = self.tableWidget.currentRow()
+        if gid != -1:
+            x, success = QInputDialog.getInt(self, "Rotate", "x:")
+            if not success:
+                return
+            y, success = QInputDialog.getInt(self, "Rotate", "y:")
+            if not success:
+                return
+            degree, success = QInputDialog.getInt(self, "Rotate", "degree:")
+            if not success:
+                return
+            try:
+                self.canvas.rotate(gid, (x, y), degree)
+            except Exception:
+                traceback.print_exc()
+
+    def scale(self):
+        gid = self.tableWidget.currentRow()
+        if gid != -1:
+            x, success = QInputDialog.getInt(self, "Scale", "x:")
+            if not success:
+                return
+            y, success = QInputDialog.getInt(self, "Scale", "y:")
+            if not success:
+                return
+            times, success = QInputDialog.getDouble(self, "Scale", "times:")
+            if not success:
+                return
+            self.canvas.scale(gid, (x, y), times)
+
+    def clip(self, algorithm):
+        self.setWaitPointsThread(self.ClipThread(self, algorithm))
+        self.waitPointsThread.start()
+
     def paintEvent(self, a0: QtGui.QPaintEvent):
         if self.canvas is None:
             return
@@ -87,7 +143,7 @@ class CanvasWidget(QWidget):
         if e.button() == QtCore.Qt.MouseButton.LeftButton:
             self.pointList.append((e.x(), e.y()))
             self.currentPoint = (e.x(), e.y())
-            if len(self.pointList) == self.pointsLimit:
+            if len(self.pointList) == self.pointsNeeded:
                 self.endGettingPoints()
             else:
                 # notify waiting thread
@@ -112,21 +168,25 @@ class CanvasWidget(QWidget):
         while not self.waitPointsThread.isAlive():
             self.waitPointsThread.notify()
 
-    def drawGraphic(self, pointsLimit, graphicType, drawFunction, algorithm):
-        self.pointsLimit = pointsLimit
+    def drawGraphic(self, pointsNeeded, graphicType, drawFunction, algorithm):
+        self.pointsNeeded = pointsNeeded
         self.pointList = []
-        self.isGetting = True
-        self.isCancelling = False
-        self.waitPointsThread = self.DrawThread(self, graphicType, drawFunction, algorithm)
+        self.setWaitPointsThread(self.DrawThread(self, graphicType, pointsNeeded, drawFunction, algorithm))
         self.waitPointsThread.start()
 
-    class DrawThread(threading.Thread):
-        def __init__(self, canvasWidget, graphicType, drawFunction, algorithm):
+    def setWaitPointsThread(self, waitPointsThread):
+        if self.waitPointsThread is not None:
+            self.isCancelling = True
+            self.waitPointsThread.notify()
+            self.waitPointsThread.join()
+        self.waitPointsThread = waitPointsThread
+
+    class WaitPointsThread(threading.Thread):
+        def __init__(self, canvasWidget, pointsNeeded):
             super().__init__(daemon=True)
             self.canvasWidget = canvasWidget
-            self.drawFunction = drawFunction
-            self.graphicType = graphicType
-            self.algorithm = algorithm
+            self.canvasWidget.pointsNeeded = pointsNeeded
+            self.canvasWidget.pointList = []
             self.condition = threading.Condition()
 
         def wait(self):
@@ -137,30 +197,74 @@ class CanvasWidget(QWidget):
                 self.condition.notify()
 
         def run(self):
+            self.canvasWidget.isGetting = True
+            self.canvasWidget.isCancelling = False
             with self.condition:
                 while True:
                     if self.canvasWidget.isCancelling:
-                        self.canvasWidget.isGetting = False
-                        self.canvasWidget.waitPointListThread = None
+                        self.onCanceling()
                         break
                     if self.canvasWidget.isGetting:
-                        tempPointList = self.canvasWidget.pointList.copy()
-                        tempPointList.append(self.canvasWidget.currentPoint)
-                        self.drawFunction(self.algorithm, -1, tempPointList)
-                        self.canvasWidget.update()
+                        self.onGetting()
                         self.wait()
                     else:
-                        graphicCount = self.canvasWidget.tableWidget.rowCount()
-                        self.drawFunction(self.algorithm, graphicCount,
-                                          self.canvasWidget.pointList)
-                        self.canvasWidget.tableWidget.insertRow(graphicCount)
-                        self.canvasWidget.tableWidget.setItem(graphicCount, 0, QTableWidgetItem(str(graphicCount)))
-                        self.canvasWidget.tableWidget.setItem(graphicCount, 1, QTableWidgetItem(self.graphicType))
-                        self.canvasWidget.tableWidget.setItem(graphicCount, 2, QTableWidgetItem(self.algorithm))
-                        self.canvasWidget.update()
-                        self.canvasWidget.isGetting = False
-                        self.canvasWidget.waitPointListThread = None
+                        self.onEnding()
                         break
+
+        def onCanceling(self):
+            self.canvasWidget.isGetting = False
+            self.canvasWidget.waitPointListThread = None
+
+        def onGetting(self):
+            pass
+
+        def onEnding(self):
+            self.canvasWidget.isGetting = False
+            self.canvasWidget.waitPointListThread = None
+
+    class DrawThread(WaitPointsThread):
+        def __init__(self, canvasWidget, graphicType, pointsNeeded, drawFunction, algorithm):
+            super().__init__(canvasWidget, pointsNeeded)
+            self.drawFunction = drawFunction
+            self.graphicType = graphicType
+            self.algorithm = algorithm
+
+        def onGetting(self):
+            tempPointList = self.canvasWidget.pointList.copy()
+            tempPointList.append(self.canvasWidget.currentPoint)
+            self.drawFunction(self.algorithm, -1, tempPointList)
+            self.canvasWidget.update()
+
+        def onEnding(self):
+            super().onEnding()
+            graphicCount = self.canvasWidget.tableWidget.rowCount()
+            if self.drawFunction(self.algorithm, graphicCount, self.canvasWidget.pointList):
+                self.canvasWidget.tableWidget.insertRow(graphicCount)
+                self.canvasWidget.tableWidget.setItem(graphicCount, 0, QTableWidgetItem(str(graphicCount)))
+                self.canvasWidget.tableWidget.setItem(graphicCount, 1, QTableWidgetItem(self.graphicType))
+                self.canvasWidget.tableWidget.setItem(graphicCount, 2, QTableWidgetItem(self.algorithm))
+                self.canvasWidget.update()
+            self.canvasWidget.update()
+
+    class ClipThread(WaitPointsThread):
+        def __init__(self, canvasWidget, algorithm):
+            super().__init__(canvasWidget, 2)
+            self.algorithm = algorithm
+
+        def onGetting(self):
+            tempPointList = self.canvasWidget.pointList.copy()
+            tempPointList.append(self.canvasWidget.currentPoint)
+            self.canvasWidget.canvas.addRectangle("Bresenham", -1, tempPointList)
+            self.canvasWidget.update()
+
+        def onEnding(self):
+            super().onEnding()
+            gid = self.canvasWidget.tableWidget.currentRow()
+            try:
+                self.canvasWidget.canvas.clip(self.algorithm, gid, self.canvasWidget.pointList)
+            except Exception:
+                traceback.print_exc()
+            self.canvasWidget.update()
 
     if __name__ == '__main__':
         app = QApplication(sys.argv)
