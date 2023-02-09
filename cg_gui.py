@@ -36,6 +36,12 @@ class MainWindow(QMainWindow):
         self.ui.actionMidpoint.triggered.connect(
             lambda: self.ui.canvasWidget.drawGraphic(2, "Ellipse", self.ui.canvasWidget.canvas.addEllipse, "Midpoint")
         )
+        self.ui.actionMidpoint.triggered.connect(
+            lambda: self.ui.canvasWidget.drawGraphic(-1, "Curve", self.ui.canvasWidget.canvas.addCurve, "Bezier")
+        )
+        self.ui.actionMidpoint.triggered.connect(
+            lambda: self.ui.canvasWidget.drawGraphic(-1, "Curve", self.ui.canvasWidget.canvas.addCurve, "B-spline")
+        )
         self.ui.actionClear.triggered.connect(self.ui.canvasWidget.resetCanvas)
 
 
