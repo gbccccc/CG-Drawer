@@ -23,7 +23,7 @@ class CommandParser:
         elif commandType == "resetCanvas":
             width = int(words[1])
             height = int(words[2])
-            self.canvas.resetCanvas(height, width)
+            self.canvas.resetCanvas(width, height)
         elif commandType == "saveCanvas":
             name = words[1]
             self.canvas.saveCanvas(name)
@@ -89,10 +89,10 @@ def getPointList(words, start):
 
 
 class Canvas:
-    def __init__(self, height, width, outputDir):
+    def __init__(self, width, height, outputDir):
         self.tempGraphic = None
-        self.height = height
         self.width = width
+        self.height = height
         self.outputDir = outputDir
         self.bitmap = np.zeros((self.height, self.width, 3), np.uint8)
         self.graphics = {}
