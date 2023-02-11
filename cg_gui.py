@@ -4,10 +4,8 @@ import traceback
 
 from PIL import ImageQt
 from PyQt5 import QtCore
-from PyQt5.QtCore import QPoint
-from PyQt5.QtGui import QPainter, QImage
+from PyQt5.QtGui import QPainter
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QTableWidgetItem, QColorDialog, QInputDialog
-from pyqt5_plugins.examplebutton import QtWidgets
 from pyqt5_plugins.examplebuttonplugin import QtGui
 
 import cg_cli as cli
