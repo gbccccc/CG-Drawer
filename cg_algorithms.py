@@ -401,6 +401,10 @@ class Ellipse(MetaGraphic):
         raise Exception("rotating an ellipse")
 
 
+def isBesidePoints(pointA, pointB):
+    return math.fabs(pointA[0] - pointB[0]) <= 1 and math.fabs(pointA[1] - pointB[1]) <= 1
+
+
 class Curve(MetaGraphic):
     def __init__(self, algorithm: string, color, pointList):
         super().__init__(algorithm, color, pointList)
@@ -410,13 +414,70 @@ class Curve(MetaGraphic):
         if self.algorithm == "Bezier":
             result = self.drawByBezier()
         elif self.algorithm == "B-spline":
-            result = self.drawByBSpline()
+            result = self.drawByBSpline(3)
         return result
 
     def drawByBezier(self):
-        result = []
+        start = self.deCasteljau(0)
+        end = self.deCasteljau(1.0)
+        result = self.generateCurvePoints(0, start, 1, end, self.deCasteljau)
+        result.append(start)
+        result.append(end)
         return result
 
-    def drawByBSpline(self):
-        result = []
+    def generateCurvePoints(self, ul, lastPoint, un, nextPoint, generator):
+        if isBesidePoints(lastPoint, nextPoint) or math.fabs(ul - un) <= 0.001:
+            return []
+
+        u = (ul + un) / 2
+        point = generator(u)
+
+        result = self.generateCurvePoints(ul, lastPoint, u, point, generator)
+        result.extend(self.generateCurvePoints(u, point, un, nextPoint, generator))
+
+        if point != lastPoint and point != nextPoint:
+            result.append(point)
         return result
+
+    def deCasteljau(self, u):
+        point = Curve.deCasteljauRecursive(u, self.points)
+        return int(point[0]), int(point[1])
+
+    @staticmethod
+    def deCasteljauRecursive(u, points):
+        if len(points) == 1:
+            return points[0]
+
+        nextPoints = []
+        for i in range(len(points) - 1):
+            nextPoints.append(((1 - u) * points[i][0] + u * points[i + 1][0],
+                               (1 - u) * points[i][1] + u * points[i + 1][1]))
+        return Curve.deCasteljauRecursive(u, nextPoints)
+
+    def drawByBSpline(self, k):
+        if len(self.points) < 4:
+            return []
+
+        uMin = float(k)
+        start = self.deBoorCox(k, uMin)
+        uMax = float(len(self.points) - 0.001)
+        end = self.deBoorCox(k, uMax)
+        result = self.generateCurvePoints(uMin, start, uMax, end,
+                                          lambda u: self.deBoorCox(k, u))
+        result.append(start)
+        result.append(end)
+        return result
+
+    def deBoorCox(self, k, u):
+        j = int(u)
+        point = self.deBoorCoxRecursive(k, j, k, u)
+        return int(point[0]), int(point[1])
+
+    def deBoorCoxRecursive(self, k, i, r, u):
+        if r == 0:
+            return self.points[i]
+        weight = (u - i) / (k + 1 - r)
+        point1 = self.deBoorCoxRecursive(k, i, r - 1, u)
+        point2 = self.deBoorCoxRecursive(k, i - 1, r - 1, u)
+        return (weight * point1[0] + (1 - weight) * point2[0],
+                weight * point1[1] + (1 - weight) * point2[1])

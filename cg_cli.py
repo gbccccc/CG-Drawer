@@ -128,7 +128,7 @@ class Canvas:
         else:
             self.graphics[gid] = graphic
 
-    def resetCanvas(self, height, width):
+    def resetCanvas(self, width, height):
         self.height = height
         self.width = width
         self.bitmap = np.zeros((self.height, self.width, 3), np.uint8)
