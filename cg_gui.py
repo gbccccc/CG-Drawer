@@ -6,7 +6,7 @@ from PIL import ImageQt
 from PyQt5 import QtCore
 from PyQt5.QtGui import QPainter
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QTableWidgetItem, QColorDialog, QInputDialog
-from pyqt5_plugins.examplebuttonplugin import QtGui
+# from pyqt5_plugins.examplebuttonplugin import QtGui
 
 import cg_cli as cli
 
@@ -93,6 +93,7 @@ class CanvasWidget(QWidget):
             if not success:
                 return
             self.canvas.translate(gid, (dx, dy))
+        self.update()
 
     def rotate(self):
         gid = self.tableWidget.currentRow()
@@ -110,6 +111,7 @@ class CanvasWidget(QWidget):
                 self.canvas.rotate(gid, (x, y), degree)
             except Exception:
                 traceback.print_exc()
+        self.update()
 
     def scale(self):
         gid = self.tableWidget.currentRow()
@@ -124,18 +126,19 @@ class CanvasWidget(QWidget):
             if not success:
                 return
             self.canvas.scale(gid, (x, y), times)
+        self.update()
 
     def clip(self, algorithm):
         self.setWaitPointsThread(self.ClipThread(self, algorithm))
         self.waitPointsThread.start()
 
-    def paintEvent(self, a0: QtGui.QPaintEvent):
+    def paintEvent(self, a0):
         if self.canvas is None:
             return
         painter = QPainter(self)
         painter.drawImage(0, 0, ImageQt.toqimage(self.canvas.getImage()))
 
-    def mousePressEvent(self, e: QtGui.QMouseEvent):
+    def mousePressEvent(self, e):
         if not self.isGetting:
             return
         if e.button() == QtCore.Qt.MouseButton.LeftButton:
@@ -154,7 +157,7 @@ class CanvasWidget(QWidget):
         # notify waiting thread
         self.waitPointsThread.notify()
 
-    def mouseMoveEvent(self, e: QtGui.QMouseEvent):
+    def mouseMoveEvent(self, e):
         if not self.isGetting:
             return
 
