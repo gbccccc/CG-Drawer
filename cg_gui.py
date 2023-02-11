@@ -6,7 +6,6 @@ from PIL import ImageQt
 from PyQt5 import QtCore
 from PyQt5.QtGui import QPainter
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QTableWidgetItem, QColorDialog, QInputDialog
-# from pyqt5_plugins.examplebuttonplugin import QtGui
 
 import cg_cli as cli
 
@@ -84,8 +83,8 @@ class CanvasWidget(QWidget):
         self.canvas.setColor((color.red(), color.green(), color.blue()))
 
     def translate(self):
-        gid = self.tableWidget.currentRow()
-        if gid != -1:
+        gid = str(self.tableWidget.currentRow())
+        if gid != "-1":
             dx, success = QInputDialog.getInt(self, "Translate", "dx:")
             if not success:
                 return
@@ -96,8 +95,8 @@ class CanvasWidget(QWidget):
         self.update()
 
     def rotate(self):
-        gid = self.tableWidget.currentRow()
-        if gid != -1:
+        gid = str(self.tableWidget.currentRow())
+        if gid != "-1":
             x, success = QInputDialog.getInt(self, "Rotate", "x:")
             if not success:
                 return
@@ -114,8 +113,8 @@ class CanvasWidget(QWidget):
         self.update()
 
     def scale(self):
-        gid = self.tableWidget.currentRow()
-        if gid != -1:
+        gid = str(self.tableWidget.currentRow())
+        if gid != "-1":
             x, success = QInputDialog.getInt(self, "Scale", "x:")
             if not success:
                 return
@@ -233,13 +232,13 @@ class CanvasWidget(QWidget):
         def onGetting(self):
             tempPointList = self.canvasWidget.pointList.copy()
             tempPointList.append(self.canvasWidget.currentPoint)
-            self.drawFunction(self.algorithm, -1, tempPointList)
+            self.drawFunction(self.algorithm, "Temporary", tempPointList)
             self.canvasWidget.update()
 
         def onEnding(self):
             super().onEnding()
             graphicCount = self.canvasWidget.tableWidget.rowCount()
-            if self.drawFunction(self.algorithm, graphicCount, self.canvasWidget.pointList):
+            if self.drawFunction(self.algorithm, str(graphicCount), self.canvasWidget.pointList):
                 self.canvasWidget.tableWidget.insertRow(graphicCount)
                 self.canvasWidget.tableWidget.setItem(graphicCount, 0, QTableWidgetItem(str(graphicCount)))
                 self.canvasWidget.tableWidget.setItem(graphicCount, 1, QTableWidgetItem(self.graphicType))
@@ -255,12 +254,12 @@ class CanvasWidget(QWidget):
         def onGetting(self):
             tempPointList = self.canvasWidget.pointList.copy()
             tempPointList.append(self.canvasWidget.currentPoint)
-            self.canvasWidget.canvas.addRectangle("Bresenham", -1, tempPointList)
+            self.canvasWidget.canvas.addRectangle("Bresenham", "Temporary", tempPointList)
             self.canvasWidget.update()
 
         def onEnding(self):
             super().onEnding()
-            gid = self.canvasWidget.tableWidget.currentRow()
+            gid = str(self.canvasWidget.tableWidget.currentRow())
             try:
                 self.canvasWidget.canvas.clip(self.algorithm, gid, self.canvasWidget.pointList)
             except Exception:

@@ -31,49 +31,49 @@ class CommandParser:
             color = (int(words[1]), int(words[2]), int(words[3]))
             self.canvas.setColor(color)
         elif commandType == "drawLine":
-            gid = int(words[1])
+            gid = words[1]
             start = (int(words[2]), int(words[3]))
             end = (int(words[4]), int(words[5]))
             algorithm = words[6]
             self.canvas.addLine(algorithm, gid, [start, end])
         elif commandType == "drawPolygon":
-            gid = int(words[1])
+            gid = words[1]
             pointList, end = getPointList(words, 2)
             algorithm = words[end]
             self.canvas.addPolygon(algorithm, gid, pointList)
         elif commandType == "drawRectangle":
-            gid = int(words[1])
+            gid = words[1]
             pointA = (int(words[2]), int(words[3]))
             pointB = (int(words[4]), int(words[5]))
             algorithm = words[6]
             self.canvas.addRectangle(algorithm, gid, [pointA, pointB])
         elif commandType == "drawEllipse":
-            gid = int(words[1])
+            gid = words[1]
             pointA = (int(words[2]), int(words[3]))
             pointB = (int(words[4]), int(words[5]))
             algorithm = "Midpoint"
             self.canvas.addEllipse(algorithm, gid, [pointA, pointB])
         elif commandType == "drawCurve":
-            gid = int(words[1])
+            gid = words[1]
             pointList, end = getPointList(words, 2)
             algorithm = words[end]
             self.canvas.addCurve(algorithm, gid, pointList)
         elif commandType == "translate":
-            gid = int(words[1])
+            gid = words[1]
             displacement = (int(words[2]), int(words[3]))
             self.canvas.translate(gid, displacement)
         elif commandType == "rotate":
-            gid = int(words[1])
+            gid = words[1]
             center = (int(words[2]), int(words[3]))
             angle = int(words[4])
             self.canvas.rotate(gid, center, angle)
         elif commandType == "scale":
-            gid = int(words[1])
+            gid = words[1]
             center = (int(words[2]), int(words[3]))
             times = float(words[4])
             self.canvas.scale(gid, center, times)
         elif commandType == "clip":
-            gid = int(words[1])
+            gid = words[1]
             pointA = (int(words[2]), int(words[3]))
             pointB = (int(words[4]), int(words[5]))
             algorithm = words[6]
@@ -123,7 +123,7 @@ class Canvas:
                 self.bitmap[y][x] = color
 
     def addGraphic(self, graphic, gid):
-        if gid == -1:
+        if gid == "Temporary":
             self.tempGraphic = graphic
         else:
             self.graphics[gid] = graphic
