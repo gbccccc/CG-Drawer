@@ -426,8 +426,9 @@ class Curve(MetaGraphic):
         return result
 
     """general structure of drawing a curve"""
+
     def drawCurve(self, ul, lastPoint, un, nextPoint, generator):
-        if isBesidePoints(lastPoint, nextPoint) or math.fabs(ul - un) <= 0.001:
+        if isBesidePoints(lastPoint, nextPoint) or math.fabs(ul - un) <= 0.0001:  # avoid recursion being too deep
             return []
 
         u = (ul + un) / 2
