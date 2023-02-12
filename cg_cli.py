@@ -172,7 +172,9 @@ class Canvas:
         return True
 
     def addCurve(self, algorithm, gid, pointList):
-        if len(pointList) < 2:
+        if algorithm == "Bezier" and len(pointList) < 2:
+            return False
+        elif algorithm == "B-spline" and len(pointList) < 4:
             return False
         curve = alg.Curve(algorithm, self.penColor, pointList)
         self.addGraphic(curve, gid)

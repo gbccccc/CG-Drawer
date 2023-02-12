@@ -420,20 +420,21 @@ class Curve(MetaGraphic):
     def drawByBezier(self):
         start = self.deCasteljau(0)
         end = self.deCasteljau(1.0)
-        result = self.generateCurvePoints(0, start, 1, end, self.deCasteljau)
+        result = self.drawCurve(0, start, 1, end, self.deCasteljau)
         result.append(start)
         result.append(end)
         return result
 
-    def generateCurvePoints(self, ul, lastPoint, un, nextPoint, generator):
+    """general structure of drawing a curve"""
+    def drawCurve(self, ul, lastPoint, un, nextPoint, generator):
         if isBesidePoints(lastPoint, nextPoint) or math.fabs(ul - un) <= 0.001:
             return []
 
         u = (ul + un) / 2
         point = generator(u)
 
-        result = self.generateCurvePoints(ul, lastPoint, u, point, generator)
-        result.extend(self.generateCurvePoints(u, point, un, nextPoint, generator))
+        result = self.drawCurve(ul, lastPoint, u, point, generator)
+        result.extend(self.drawCurve(u, point, un, nextPoint, generator))
 
         if point != lastPoint and point != nextPoint:
             result.append(point)
@@ -462,8 +463,8 @@ class Curve(MetaGraphic):
         start = self.deBoorCox(k, uMin)
         uMax = float(len(self.points) - 0.001)
         end = self.deBoorCox(k, uMax)
-        result = self.generateCurvePoints(uMin, start, uMax, end,
-                                          lambda u: self.deBoorCox(k, u))
+        result = self.drawCurve(uMin, start, uMax, end,
+                                lambda u: self.deBoorCox(k, u))
         result.append(start)
         result.append(end)
         return result

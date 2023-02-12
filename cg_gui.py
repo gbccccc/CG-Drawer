@@ -198,10 +198,10 @@ class CanvasWidget(QWidget):
 
         def run(self):
             self.canvasWidget.isGetting = True
-            self.canvasWidget.isCancelling = False
+            self.canvasWidget.isCanceling = False
             with self.condition:
                 while True:
-                    if self.canvasWidget.isCancelling:
+                    if self.canvasWidget.isCanceling:
                         self.onCanceling()
                         break
                     if self.canvasWidget.isGetting:
@@ -243,7 +243,6 @@ class CanvasWidget(QWidget):
                 self.canvasWidget.tableWidget.setItem(graphicCount, 0, QTableWidgetItem(str(graphicCount)))
                 self.canvasWidget.tableWidget.setItem(graphicCount, 1, QTableWidgetItem(self.graphicType))
                 self.canvasWidget.tableWidget.setItem(graphicCount, 2, QTableWidgetItem(self.algorithm))
-                self.canvasWidget.update()
             self.canvasWidget.update()
 
     class ClipThread(WaitPointsThread):
