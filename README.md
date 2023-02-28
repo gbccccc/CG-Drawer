@@ -14,3 +14,6 @@ python cg_cli.py <input_path> <output_path>
 python cg_gui.py
 ```
 
+
+
+**TRASH COURSE, DO NOT SELECT NJU-CG.**
