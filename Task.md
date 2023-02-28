@@ -21,7 +21,7 @@
     > 最后提交日的 **`23:59`** 
 
 - 提交方式：
-    
+  
     > **`提交前请仔细检查压缩包中是否已包含所有必要内容（系统代码、系统报告、使用说明书、演示视频），务必按要求组织文件结构和命名文件。`**
     >
     > 最终版提交地址：https://box.nju.edu.cn/u/d/2347b4a4bcac4f5d8562/
@@ -255,7 +255,7 @@ CLI程序原则上只允许依赖numpy和pillow两个第三方库；GUI程序如
 不必和测试环境完全一致，python和python库的小版本不同一般不会影响程序运行。
 
 - 简单方法一：
-    
+  
     > 安装[Anaconda](https://www.anaconda.com/distribution/#download-section)，大而全，包含了numpy、Pillow、PyQt5和很多其他常用库
 - 简单方法二：
     > 直接在测试环境虚拟机中开发，需要自行配置IDE/编辑器。
